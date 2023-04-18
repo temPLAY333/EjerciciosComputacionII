@@ -1,0 +1,22 @@
+Error: FileNotFoundError 
+[Errno 2] No such file or directory: 'holis.txt' 
+Error: TypeError 
+'builtin_function_or_method' object is not iterable 
+Error: TypeError 
+'builtin_function_or_method' object is not iterable 
+Error: TypeError 
+'builtin_function_or_method' object is not iterable 
+Error: TypeError 
+'builtin_function_or_method' object is not iterable 
+Error: TypeError 
+'builtin_function_or_method' object is not iterable 
+Error: UnboundLocalError 
+local variable 'suma' referenced before assignment 
+Error: UnboundLocalError 
+local variable 'suma' referenced before assignment 
+Error: UnboundLocalError 
+local variable 'suma' referenced before assignment 
+Error: UnboundLocalError 
+local variable 'suma' referenced before assignment 
+Error: UnboundLocalError 
+local variable 'suma' referenced before assignment 
