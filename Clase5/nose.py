@@ -38,10 +38,10 @@ print(b.nonce)
 
 def hackear(hijos=2):
     os.mkfifo("data")
-    block = NoBlock(d=2)
+    block = NoBlock()
 
     for n in range(hijos):
-        pip = os.fork()+n
+        pip = os.fork()
         if pip==0:
             data = b.proof_of_work()
             with open("data") as p:
@@ -52,6 +52,5 @@ def hackear(hijos=2):
         time.sleep(1)
     
 
-    
-
-    
+if __name__ == "__main__":
+    pass    
