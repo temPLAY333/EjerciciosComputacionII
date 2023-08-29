@@ -6,44 +6,42 @@
 
 import socket, multiprocessing, signal, os
 
-def childWork(msg, pid):
+def childWork(msg: socket, pid: int):
     while True:
         msg.send(b"Texto: ")
-        try:
-            data = msg.recv(4096).decode().replace("\n","").replace("\r","")
-            if data == "Exit":
-                msg.close
-                break
-            if data == "CloseServer":
-                msg.close
-                os.kill(pid, signal.SIGUSR1)
-            msg.send(bytes(str(data.upper()+"\n"), "utf-8"))
-        except Exception as error:
-            msg.send(b"Ocurrio un error")
-            msg.send(bytes(error, "utf-8"))
+
+        data = msg.recv(4096).decode().replace("\n","").replace("\r","")
+        if data == "Exit":
+            msg.close()
+            break
+        elif data == "CloseServer":
+            msg.close()
+            os.kill(pid, signal.SIGUSR1)
+            break
+        msg.send(bytes(str(data.upper()+"\n"), "utf-8"))
 
 def start():
-    list=[]
     signal.signal(signal.SIGCHLD, signal.SIG_IGN)
-    signal.signal(signal.SIGUSR1, closeServer(list))
+    signal.signal(signal.SIGUSR1, closeServer)
     
     sock.listen(5)
     pid = os.getgid()
     while True:
-        msg = sock.accept()
-        msg.send(b"Ingrese un texto a mayusculear (Exit para terminar la conexion y CloseServer para cerrar el servidor")
+        msg, adrres = sock.accept()
+        msg.send(b"Ingrese un texto a mayusculear (Exit para terminar la conexion)"+"\n")
         child = multiprocessing.Process(target=childWork, args=(msg, pid))
         list.append(child)
         child.start()
 
-def closeServer(hijos: list, signum=None, frame=None):
-    for child in hijos:
+def closeServer(signum=None, frame=None):
+    for child in list:
         child.terminate()
         child.join()
     sock.close()
     exit()
 
 if __name__ == "__main__":
+    list= []
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.bind(("localhost", 5678))
     start()
