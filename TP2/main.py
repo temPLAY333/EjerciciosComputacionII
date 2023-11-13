@@ -9,16 +9,13 @@ image_queue = Queue()
 def image_processing_worker(queue):
     while True:
         image_path, output_path, image_name, scale_factor = queue.get()
-        
-        # Procesar la imagen (escala de grises)
+
         process_image(image_path, output_path)
         print("Imagen Procesada")
 
-        # Si es necesario redimensionar
         if scale_factor is not None:
             # Enviar tarea al servidor de redimensionamiento
             resized_image_data = send_to_resize_server(output_path, scale_factor)
-            
             output_path = os.path.join("output", "resized_" + image_name)
 
             # Guardar la imagen redimensionada
@@ -27,11 +24,8 @@ def image_processing_worker(queue):
 
 
 def process_image(image_path, output_path):
-    # Cargar la imagen
     print("Procesando imagen...")
     original_image = Image.open(image_path)
-
-    # Convertir a escala de grises
     grayscale_image = ImageOps.grayscale(original_image)
 
     # Guardar la imagen en escala de grises
@@ -44,10 +38,7 @@ def send_to_resize_server(image_path, scale_factor):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as resize_client:
             resize_client.connect(("127.0.0.1", 5000))  # Cambiar si es necesario
 
-            # Convertir el factor de escala a cadena de bytes
             scale_factor_bytes = str(scale_factor).encode("utf-8")
-
-            # Enviar la longitud del factor de escala y luego el factor de escala
             resize_client.sendall(len(scale_factor_bytes).to_bytes(4, byteorder='big'))
             resize_client.sendall(scale_factor_bytes)
 
@@ -101,37 +92,32 @@ class ImageProcessingHandler(http.server.CGIHTTPRequestHandler):
             output_filename = os.path.join("output", "gray_" + image_name)
             image_queue.put((uploaded_filename, output_filename, image_name, scale_factor if resize_option == 'on' else None))
 
-            # Responder al cliente con la imagen procesada
-            self.send_response(200)
-            self.send_header('Content-type', 'application/octet-stream')
-            self.send_header('Content-Disposition', f'attachment; filename="{os.path.basename(output_filename)}"')
-            self.end_headers()
+            # Imagen para descargar - Refactorizar
+            # self.send_response(200)
+            # self.send_header('Content-type', 'application/octet-stream')
+            # self.send_header('Content-Disposition', f'attachment; filename="{os.path.basename(output_filename)}"')
+            # self.end_headers()
 
         except IOError as e:
             print(f"Error de E/S en el manejo del POST: {e}")
-            # Enviar una respuesta HTTP con un código de error (por ejemplo, 500 Internal Server Error)
             self.send_error(HTTPStatus.INTERNAL_SERVER_ERROR)
 
         except OSError as e:
             print(f"Error de sistema en el manejo del POST: {e}")
-            # Enviar una respuesta HTTP con un código de error (por ejemplo, 500 Internal Server Error)
             self.send_error(HTTPStatus.INTERNAL_SERVER_ERROR)
 
         except http.server.CGIHTTPRequestHandler.CGIError as e:
             print(f"Error CGI en el manejo del POST: {e}")
-            # Enviar una respuesta HTTP con un código de error (por ejemplo, 500 Internal Server Error)
             self.send_error(HTTPStatus.INTERNAL_SERVER_ERROR)
 
 def main(ip, port):
     os.makedirs("uploads", exist_ok=True)
     os.makedirs("output", exist_ok=True)
 
-    # Iniciar el worker para procesamiento de imágenes
     image_worker = Process(target=image_processing_worker, args=(image_queue,))
     image_worker.start()
 
     try:
-        # Iniciar el servidor HTTP personalizado
         handler = ImageProcessingHandler
         with socketserver.TCPServer((ip, port), handler) as httpd:
             print(f"Serving on {ip}:{port}")
@@ -145,7 +131,6 @@ def main(ip, port):
         image_worker.join()
 
         print("Servidor hijo cerrado. Saliendo...")
-        # Finalizar el programa después de cerrar el servidor hijo
         sys.exit(0)
 
 if __name__ == "__main__":

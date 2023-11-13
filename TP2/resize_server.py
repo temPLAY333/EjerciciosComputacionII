@@ -26,15 +26,12 @@ def start_resize_server(ip, port):
             with conn:
                 print(f"Accepted connection from {addr}")
 
-                # Receive scale factor length
                 scale_factor_length_data = conn.recv(4)
                 scale_factor_length = int.from_bytes(scale_factor_length_data, byteorder='big')
 
-                # Receive scale factor
                 scale_factor_data = conn.recv(scale_factor_length)
                 scale_factor = float(scale_factor_data.decode("utf-8"))
 
-                # Receive image data
                 image_data = b""
                 while True:
                     data = conn.recv(1024)
@@ -42,11 +39,9 @@ def start_resize_server(ip, port):
                         break
                     image_data += data
 
-                # Resize the image
                 resized_image_data = resize_image(image_data, scale_factor)
                 print("Listo")
 
-                # Send back the resized image
                 conn.sendall(resized_image_data)
 
 if __name__ == "__main__":
