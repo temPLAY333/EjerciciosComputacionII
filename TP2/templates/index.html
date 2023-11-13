@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TP2 - Procesamiento de Imágenes</title>
+</head>
+<body>
+    <h1>TP2 - Procesamiento de Imágenes</h1>
+    <form action="/" method="post" enctype="multipart/form-data">
+        <input type="file" name="file" accept=".jpg, .jpeg, .png" id="fileInput">
+        <input type="checkbox" name="resize" id="resizeCheckbox"> Redimensionar
+        <input type="number" name="scale_factor" placeholder="Factor de escala" step="0.1">
+        <input type="submit" value="Procesar">
+    </form>
+</body>
+</html>
+
