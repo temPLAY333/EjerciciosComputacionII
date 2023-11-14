@@ -4,7 +4,6 @@ from PIL import Image, ImageOps
 from http import HTTPStatus
 
 image_queue = Queue()
-response_queue = Queue()
 
 class MyTCPServer(socketserver.TCPServer):
     address_family = socket.AF_INET6
@@ -25,7 +24,6 @@ def image_processing_worker(queue):
                 resized_image_file.write(resized_image_data)
             break
 
-    response_queue.put(output_path)
 
 def send_to_resize_server(image_path, scale_factor):
 
